@@ -14,42 +14,39 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import PropTypes from 'prop-types';
 
 function clamp(number, min, max) {
   return Math.max(min, Math.min(number, max));
 }
 
-export default function Draggable(props) {
-  const {
-    renderText,
-    isCircle,
-    renderSize,
-    imageSource,
-    renderColor,
-    children,
-    shouldReverse,
-    onReverse,
-    disabled,
-    debug,
-    animatedViewProps,
-    touchableOpacityProps,
-    onDrag,
-    onShortPressRelease,
-    onDragRelease,
-    onLongPress,
-    onPressIn,
-    onPressOut,
-    onRelease,
-    x,
-    y,
-    z,
-    minX,
-    minY,
-    maxX,
-    maxY,
-  } = props;
-
+export default function Draggable({
+  renderText = '＋',
+  renderSize = 36,
+  shouldReverse = false,
+  disabled = false,
+  debug = false,
+  onDrag = () => {},
+  onShortPressRelease = () => {},
+  onDragRelease = () => {},
+  onLongPress = () => {},
+  onPressIn = () => {},
+  onPressOut = () => {},
+  onRelease = () => {},
+  x = 0,
+  y = 0,
+  z = 1,
+  isCircle,
+  imageSource,
+  renderColor,
+  children,
+  onReverse,
+  animatedViewProps,
+  touchableOpacityProps,
+  minX,
+  minY,
+  maxX,
+  maxY,
+}) {
   // The Animated object housing our xy value so that we can spring back
   const pan = React.useRef(new Animated.ValueXY());
   // Always set to xy value of pan, would like to remove
@@ -86,8 +83,7 @@ export default function Draggable(props) {
       toValue: newOffset || originalOffset,
       useNativeDriver: false,
     }).start();
-
-  }, [pan]);
+  }, [pan, onReverse]);
 
   const onPanResponderRelease = React.useCallback(
     (e, gestureState) => {
@@ -164,13 +160,13 @@ export default function Draggable(props) {
     if (!shouldReverse) {
       curPan.addListener((c) => (offsetFromStart.current = c));
     } else {
-        reversePosition();
+      reversePosition();
     }
     return () => {
       curPan.removeAllListeners();
     };
-  }, [shouldReverse]);
-  
+  }, [shouldReverse, reversePosition]);
+
   const positionCss = React.useMemo(() => {
     const Window = Dimensions.get('window');
     return {
@@ -266,7 +262,8 @@ export default function Draggable(props) {
         pointerEvents="box-none"
         {...animatedViewProps}
         {...panResponder.panHandlers}
-        style={pan.current.getLayout()}>
+        style={pan.current.getLayout()}
+      >
         <TouchableOpacity
           {...touchableOpacityProps}
           onLayout={handleOnLayout}
@@ -275,7 +272,8 @@ export default function Draggable(props) {
           onPress={onShortPressRelease}
           onLongPress={onLongPress}
           onPressIn={onPressIn}
-          onPressOut={handlePressOut}>
+          onPressOut={handlePressOut}
+        >
           {touchableContent}
         </TouchableOpacity>
       </Animated.View>
@@ -283,61 +281,8 @@ export default function Draggable(props) {
   );
 }
 
-/***** Default props and types */
-
-Draggable.defaultProps = {
-  renderText: '＋',
-  renderSize: 36,
-  shouldReverse: false,
-  disabled: false,
-  debug: false,
-  onDrag: () => {},
-  onShortPressRelease: () => {},
-  onDragRelease: () => {},
-  onLongPress: () => {},
-  onPressIn: () => {},
-  onPressOut: () => {},
-  onRelease: () => {},
-  x: 0,
-  y: 0,
-  z: 1,
-};
-
-Draggable.propTypes = {
-  /**** props that should probably be removed in favor of "children" */
-  renderText: PropTypes.string,
-  isCircle: PropTypes.bool,
-  renderSize: PropTypes.number,
-  imageSource: PropTypes.number,
-  renderColor: PropTypes.string,
-  /**** */
-  children: PropTypes.element,
-  shouldReverse: PropTypes.bool,
-  disabled: PropTypes.bool,
-  debug: PropTypes.bool,
-  animatedViewProps: PropTypes.object,
-  touchableOpacityProps: PropTypes.object,
-  onDrag: PropTypes.func,
-  onShortPressRelease: PropTypes.func,
-  onDragRelease: PropTypes.func,
-  onLongPress: PropTypes.func,
-  onPressIn: PropTypes.func,
-  onPressOut: PropTypes.func,
-  onRelease: PropTypes.func,
-  onReverse: PropTypes.func,
-  x: PropTypes.number,
-  y: PropTypes.number,
-  // z/elevation should be removed because it doesn't sync up visually and haptically
-  z: PropTypes.number,
-  minX: PropTypes.number,
-  minY: PropTypes.number,
-  maxX: PropTypes.number,
-  maxY: PropTypes.number,
-};
-
 const styles = StyleSheet.create({
   text: {color: '#fff', textAlign: 'center'},
-  test: {backgroundColor: 'red'},
   debugView: {
     backgroundColor: '#ff000044',
     position: 'absolute',

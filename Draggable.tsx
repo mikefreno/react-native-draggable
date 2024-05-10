@@ -17,74 +17,78 @@ import {
   PanResponderGestureState,
   StyleProp,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import { ViewStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
+import {ViewStyle} from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 function clamp(number: number, min: number, max: number) {
   return Math.max(min, Math.min(number, max));
 }
 
 interface IProps {
-    /**** props that should probably be removed in favor of "children" */
-    renderText?: string;
-    isCircle?: boolean;
-    renderSize?: number;
-    imageSource?: number;
-    renderColor?: string;
-    /**** */
-    children?: React.ReactNode;
-    shouldReverse?: boolean;
-    disabled?: boolean;
-    debug?: boolean;
-    animatedViewProps?: object;
-    touchableOpacityProps?: object;
-    onDrag?: (e: GestureResponderEvent, gestureState: PanResponderGestureState) => void;
-    onShortPressRelease?: (event: GestureResponderEvent) => void;
-    onDragRelease?: (e: GestureResponderEvent, gestureState: PanResponderGestureState) => void;
-    onLongPress?: (event: GestureResponderEvent) => void;
-    onPressIn?: (event: GestureResponderEvent) => void;
-    onPressOut?: (event: GestureResponderEvent) => void;
-    onRelease?: (event: GestureResponderEvent, wasDragging: boolean) => void;
-    onReverse?: () => {x: number, y: number},
-    x?: number;
-    y?: number;
-    // z/elevation should be removed because it doesn't sync up visually and haptically
-    z?: number;
-    minX?: number;
-    minY?: number;
-    maxX?: number;
-    maxY?: number;
-  };
+  /**** props that should probably be removed in favor of "children" */
+  renderText?: string;
+  isCircle?: boolean;
+  renderSize?: number;
+  imageSource?: number;
+  renderColor?: string;
+  /**** */
+  children?: React.ReactNode;
+  shouldReverse?: boolean;
+  disabled?: boolean;
+  debug?: boolean;
+  animatedViewProps?: object;
+  touchableOpacityProps?: object;
+  onDrag?: (
+    e: GestureResponderEvent,
+    gestureState: PanResponderGestureState,
+  ) => void;
+  onShortPressRelease?: (event: GestureResponderEvent) => void;
+  onDragRelease?: (
+    e: GestureResponderEvent,
+    gestureState: PanResponderGestureState,
+  ) => void;
+  onLongPress?: (event: GestureResponderEvent) => void;
+  onPressIn?: (event: GestureResponderEvent) => void;
+  onPressOut?: (event: GestureResponderEvent) => void;
+  onRelease?: (event: GestureResponderEvent, wasDragging: boolean) => void;
+  onReverse?: () => {x: number; y: number};
+  x?: number;
+  y?: number;
+  // z/elevation should be removed because it doesn't sync up visually and haptically
+  z?: number;
+  minX?: number;
+  minY?: number;
+  maxX?: number;
+  maxY?: number;
+}
 
-export default function Draggable(props: IProps) {
-  const {
-    renderText,
-    isCircle,
-    renderSize,
-    imageSource,
-    renderColor,
-    children,
-    shouldReverse,
-    disabled,
-    debug,
-    animatedViewProps,
-    touchableOpacityProps,
-    onDrag,
-    onShortPressRelease,
-    onDragRelease,
-    onLongPress,
-    onPressIn,
-    onPressOut,
-    onRelease,
-    x,
-    y,
-    z,
-    minX,
-    minY,
-    maxX,
-    maxY,
-  } = props;
-
+export default function Draggable({
+  renderText = '＋',
+  renderSize = 36,
+  shouldReverse = false,
+  disabled = false,
+  debug = false,
+  onDrag = () => {},
+  onShortPressRelease = () => {},
+  onDragRelease = () => {},
+  onLongPress = () => {},
+  onPressIn = () => {},
+  onPressOut = () => {},
+  onRelease = () => {},
+  x = 0,
+  y = 0,
+  z = 1,
+  isCircle,
+  imageSource,
+  renderColor,
+  children,
+  onReverse,
+  animatedViewProps,
+  touchableOpacityProps,
+  minX,
+  minY,
+  maxX,
+  maxY,
+}: IProps) {
   // The Animated object housing our xy value so that we can spring back
   const pan = React.useRef(new Animated.ValueXY());
   // Always set to xy value of pan, would like to remove
@@ -108,7 +112,7 @@ export default function Draggable(props: IProps) {
   }, [x, y]);
 
   const shouldStartDrag = React.useCallback(
-    gs => {
+    (gs) => {
       return !disabled && (Math.abs(gs.dx) > 2 || Math.abs(gs.dy) > 2);
     },
     [disabled],
@@ -195,10 +199,10 @@ export default function Draggable(props: IProps) {
   React.useEffect(() => {
     const curPan = pan.current; // Using an instance to avoid losing the pointer before the cleanup
     if (!shouldReverse) {
-      curPan.addListener(c => (offsetFromStart.current = c));
+      curPan.addListener((c) => (offsetFromStart.current = c));
     }
     return () => {
-        // Typed incorrectly
+      // Typed incorrectly
       curPan.removeAllListeners();
     };
   }, [shouldReverse]);
@@ -257,7 +261,7 @@ export default function Draggable(props: IProps) {
     }
   }, [children, imageSource, renderSize, renderText]);
 
-  const handleOnLayout = React.useCallback(event => {
+  const handleOnLayout = React.useCallback((event) => {
     const {height, width} = event.nativeEvent.layout;
     childSize.current = {x: width, y: height};
   }, []);
@@ -298,7 +302,8 @@ export default function Draggable(props: IProps) {
         pointerEvents="box-none"
         {...animatedViewProps}
         {...panResponder.panHandlers}
-        style={pan.current.getLayout()}>
+        style={pan.current.getLayout()}
+      >
         <TouchableOpacity
           {...touchableOpacityProps}
           onLayout={handleOnLayout}
@@ -307,33 +312,14 @@ export default function Draggable(props: IProps) {
           onPress={onShortPressRelease}
           onLongPress={onLongPress}
           onPressIn={onPressIn}
-          onPressOut={handlePressOut}>
+          onPressOut={handlePressOut}
+        >
           {touchableContent}
         </TouchableOpacity>
       </Animated.View>
     </View>
   );
 }
-
-/***** Default props and types */
-
-Draggable.defaultProps = {
-  renderText: '＋',
-  renderSize: 36,
-  shouldReverse: false,
-  disabled: false,
-  debug: false,
-  onDrag: () => {},
-  onShortPressRelease: () => {},
-  onDragRelease: () => {},
-  onLongPress: () => {},
-  onPressIn: () => {},
-  onPressOut: () => {},
-  onRelease: () => {},
-  x: 0,
-  y: 0,
-  z: 1,
-};
 
 const styles = StyleSheet.create({
   text: {color: '#fff', textAlign: 'center'},
